@@ -1,0 +1,60 @@
+.head-title{
+    border: 1px solid #999;
+    border-radius: 15px;
+    display: flex;
+    height: 52px;
+    line-height: 52px;
+    color: #fff;
+    .down{
+        position: relative;
+        border-right: 1px solid #999;
+        padding: 0 30px 0 22px;
+        position: relative;
+        cursor: pointer;
+        &::after{
+            content: "";
+            width: 20px;
+            height: 20px;
+            background: url(../../assets/down.png) no-repeat center;
+            background-size: cover;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        &:last-child{
+            border-right: none;
+            cursor: auto;
+            &::after{
+                content: none;
+            }
+        }
+        .menu{
+            position: absolute;
+            left: 0;
+            top: 60px;
+            border: 1px solid #999;
+            border-radius: 15px;
+            background: rgba($color: #000000, $alpha: 0.5);
+            .down-l{
+                padding: 0 10px;
+                cursor: pointer;
+                border-bottom: 1px solid #999;
+                width: 180px;
+                &:last-child{
+                    border-bottom: none;
+                }
+            }
+        }
+    }
+    .select-down{
+        .menu{
+            display: none;
+        }
+        &::after{
+            transform: translateY(-50%) rotate(180deg);
+        }
+    }
+}

@@ -1,0 +1,44 @@
+.claim-container{
+    width: 868px;
+    height: 576px;
+    margin: 0 auto;
+    background: azure;
+    border-radius: 30px;
+    overflow: hidden;
+   
+    h3{
+        margin: 104px 0 0;
+        text-align: center;
+        font-size: 36px;
+        line-height: 30px;
+        height: 27px;
+    }
+    .nums{
+        margin: 94px 0 115px;
+        text-align: center;
+        color: #e6007a;
+        display: block;
+        font-size: 110px;
+        height: 85px;
+        line-height: 85px;
+        font-weight: bold
+    }
+    .btn{
+        font-size: 16px;
+        color: #fff;
+        height: 50px;
+        line-height: 50px;
+        width: 440px;
+        border-radius: 30px;
+        background: linear-gradient(90deg,#ff0e69,#ff01d4);
+        border: none;
+        cursor: pointer;
+        margin: 0 auto;
+        display: block;
+        &:disabled{
+            background: #ccc;
+        }
+    }
+
+ 
+}
