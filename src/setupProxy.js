@@ -1,8 +1,7 @@
-// const proxy = require('http-proxy-middleware')
-import { createProxyMiddleware } from 'http-proxy-middleware';
+const proxy = require('http-proxy-middleware')
 
 module.exports = function (app) {
-    app.use(createProxyMiddleware("^/api", {
+    app.use(proxy.createProxyMiddleware("^/api", {
         target: "https://test-app-claim.x-protocol.com/",
         changeOrigin: true
     }))

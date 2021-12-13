@@ -32,6 +32,7 @@
             }
         }
         .menu{
+            display: none;
             position: absolute;
             left: 0;
             top: 60px;
@@ -51,7 +52,7 @@
     }
     .select-down{
         .menu{
-            display: none;
+            display: block;
         }
         &::after{
             transform: translateY(-50%) rotate(180deg);
