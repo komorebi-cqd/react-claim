@@ -1,7 +1,8 @@
-import { combineReducers } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
+import accountSlice from './accountSlice';
 
-export default combineReducers({
+export default configureStore({
     reducer: {
-        
+        accountSlice,
     }
 })
