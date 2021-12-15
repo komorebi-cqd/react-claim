@@ -2,10 +2,11 @@ import { createSlice } from '@reduxjs/toolkit'
 import { metaMaskDownload, netWorks } from '../config';
 import claimABI from '../web3-config/ABI/claim.json';
 import tokenABI from '../web3-config/ABI/token.json';
-import { getExtractCash } from '../api/claim';
+import { getExtractCash, getSign } from '../api/claim';
 
 import Web3 from 'web3';
 let web3 = new Web3(window.ethereum);
+
 const accountSlice = createSlice({
     name: 'account',
     initialState: {
@@ -16,6 +17,7 @@ const accountSlice = createSlice({
         token: '',
         tokenInfo: { decimal: 0, symbol: '' },
         balance: 0,
+        contract: null,
     },
     reducers: {
         updataAccount(state, action) {
@@ -38,15 +40,19 @@ const accountSlice = createSlice({
             state.token = action.payload
         },
         updataTokenInfo(state, action) {
+            console.log(action.payload, 'updataTokenInfo');
             state.tokenInfo = action.payload
         },
         updataBalance(state, action) {
-            state.tokenInfo = action.payload
-        }
+            state.balance = action.payload
+        },
+        updataContract(state, action) {
+            state.contract = action.payload
+        },
     }
 })
 
-export const { updataAccount, updataState, updataErrorNetWork, updataTokenInfo, updataMetaMaskNetWork, updataTokenList, updataToken,updataBalance } = accountSlice.actions;
+export const { updataAccount, updataState, updataContract, updataErrorNetWork, updataTokenInfo, updataMetaMaskNetWork, updataTokenList, updataToken, updataBalance } = accountSlice.actions;
 
 export const connect = () => async (dispatch, getState) => {
     if (window.ethereum === undefined) {
@@ -122,7 +128,6 @@ export const changeChainId = chainId => async (dispatch, getState) => {
         })
         dispatch(updataMetaMaskNetWork(obj));
         const tokens = getState().account.tokenList;
-        console.log(tokens, 'tokens');
         if (tokens.length !== 0) {
             dispatch(updataToken(tokens[0].token));
         }
@@ -140,10 +145,9 @@ export const getClaimNumber = () => async (dispatch, getState) => {
     const contract = new web3.eth.Contract(claimABI, contractToken.claim);
     const nonce = await contract.methods.nonceOf(state.account, state.token).call();
     const extractCash = await getExtractCash({ token: state.token, address: state.account, chain_id: chainId, nonce: parseInt(nonce) + 1 });
-    dispatch(getTokenInfo(state.token))
-    dispatch(updataBalance(parseInt(extractCash)));
-    console.log(extractCash, 'extractCash');
-    // console.log(contract, "contract");
+    dispatch(updataBalance(parseInt(extractCash.data)));
+    dispatch(updataContract(contract));
+    dispatch(getTokenInfo(state.token));
 }
 
 
@@ -182,6 +186,27 @@ export const switchChainId = (chainObj) => async (dispatch, getState) => {
         }
     }
 };
+
+
+export const claimToken = () => async (dispatch, getState) => {
+    const state = getState().account
+    if (state.contract) {
+        try {
+            const once = await state.contract.methods.nonceOf(state.account, state.token).call();
+            const { chainId } = JSON.parse(localStorage.getItem('net'));
+            const res = await getSign({ token: state.token, address: state.account, chain_id: chainId, nonce: parseInt(once) + 1 });
+            const receipt = state.contract.methods.claim(res.data.token, res.data.account, res.data.number, res.data.nonce, res.data.v, res.data.r, res.data.s)
+                .send({ from: state.account });
+            console.log(receipt, 'receipt:::');
+            dispatch(getClaimNumber());
+            return Promise.resolve(receipt);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }else{
+
+    }
+}
 
 export const errorNetWork = state => state.account.errorNetWork;
 export const token = state => state.account.token;

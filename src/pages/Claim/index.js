@@ -1,35 +1,47 @@
-import React, { useEffect,useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './index.scss'
-import { useSelector } from 'react-redux'
-import useTokenSymb from '../../hooks/useTokenSymb';
+import { useSelector, useDispatch } from 'react-redux'
 import { BN } from '../../utils/bigNumber'
+import { claimToken } from '../../store/accountSlice';
 
 
 export default function Claim() {
-    const tokenSymb = useTokenSymb();
+    const dispatch = useDispatch();
+    const errorNetWork = useSelector(state => state.account.errorNetWork);
     const tokenInfo = useSelector(state => state.account.tokenInfo);
     const balance = useSelector(state => state.account.balance);
-    // const [] = use
-    console.log(tokenInfo, 'tokenInfo');
-    const submit = () => {
-        console.log('提交');
+    const [newBalance, setNewBalance] = useState();
+    const [disabled, setDisabled] = useState(true);
+    const [chaiming, setChaiming] = useState(false);
+    const submit = async () => {
+        setChaiming(true);
+        await dispatch(claimToken());
+        setChaiming(false);
     }
 
     useEffect(() => {
         const { decimal } = tokenInfo;
-        return decimal - 0 <= 0
+        setNewBalance(decimal - 0 <= 0
             ? "0.0000"
             : new BN(balance)
                 .div(10 ** decimal)
                 .toFixed(4, 1)
-                .toString();
-    }, [])
+                .toString())
+    }, [balance, tokenInfo]);
+
+    useEffect(() => {
+        if (balance <= 0 || errorNetWork || chaiming) {
+            setDisabled(true);
+        }
+    }, [balance, errorNetWork, chaiming])
 
     return (
         <div className='claim-container'>
-            <h3>Claim {tokenSymb} Token</h3>
-            <div className='nums'>0.0000</div>
-            <button className='btn' disabled={true} onClick={submit}>You are on the wrong network</button>
+            <h3>Claim {tokenInfo.symbol} Token</h3>
+            <div className='nums'>{newBalance}</div>
+            <button className='btn' disabled={disabled} onClick={submit}>
+                {errorNetWork ? 'You are on the wrong network' : chaiming ? 'Claim...' : `Claim ${tokenInfo.symbol}`}
+            </button>
         </div>
     )
 }
