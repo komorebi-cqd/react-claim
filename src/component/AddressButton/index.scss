@@ -47,6 +47,9 @@
                 &:last-child{
                     border-bottom: none;
                 }
+                &:first-child{
+                    cursor: auto;
+                }
             }
         }
     }
