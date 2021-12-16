@@ -122,7 +122,6 @@ export const changeChainId = chainId => async (dispatch, getState) => {
             }
         })
         await Promise.all(tokenList).then(values => {
-            console.log(values);
             dispatch(updataTokenList(values));
             localStorage.setItem('token', JSON.stringify(values))
         })
