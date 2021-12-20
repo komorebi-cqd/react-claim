@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import accountSlice from './accountSlice';
+import walletSlice from './walletSlice';
 import connectSlice from './connectSlice';
 
 export default configureStore({
@@ -8,7 +8,7 @@ export default configureStore({
             serializableCheck: false,
         }),
     reducer: {
-        account: accountSlice,
+        wallet: walletSlice,
         connect: connectSlice,
     }
 })

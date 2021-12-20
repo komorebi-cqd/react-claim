@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import './index.scss'
-import { useSelector, useDispatch } from 'react-redux'
-import { BN } from '../../utils/bigNumber'
-import { claimToken,connect } from '../../store/accountSlice';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { BN } from '../../utils/bigNumber';
+import { claimToken } from '../../store/walletSlice';
+import { fetchConnect } from '../../store/connectSlice'
+import './index.scss';
 
 
 export default function Claim() {
     const dispatch = useDispatch();
-    const errorNetWork = useSelector(state => state.account.errorNetWork);
-    const account = useSelector(state => state.account.account);
-    const tokenInfo = useSelector(state => state.account.tokenInfo);
-    const balance = useSelector(state => state.account.balance);
+    const account = useSelector(state => state.connect.account);
+    const errorNetWork = useSelector(state => state.wallet.errorNetWork);
+    const tokenInfo = useSelector(state => state.wallet.tokenInfo);
+    const balance = useSelector(state => state.wallet.balance);
     const [newBalance, setNewBalance] = useState();
     const [disabled, setDisabled] = useState(true);
     const [chaiming, setChaiming] = useState(false);
@@ -37,13 +38,13 @@ export default function Claim() {
     }, [balance, errorNetWork, chaiming]);
 
     const btn = (<button className='btn' onClick={() => {
-        dispatch(connect());
+        dispatch(fetchConnect());
     }}>Connect</button>)
 
 
     return (
         <div className='claim-container'>
-            <h3>Claim {tokenInfo.symbol} Token</h3>
+            <h3>Claim {errorNetWork? '' : tokenInfo.symbol} Token</h3>
             <div className='nums'>{newBalance}</div>
             {account ? <button className='btn' disabled={disabled} onClick={submit}>
                 {errorNetWork ? 'You are on the wrong network' : chaiming ? 'Claim...' : `Claim ${tokenInfo.symbol}`}

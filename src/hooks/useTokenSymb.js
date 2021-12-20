@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 
 
 export default function useTokenSymb() {
-    const tokenList = useSelector(state => state.account.tokenList);
-    const curToken = useSelector(state => state.account.token);
+    const tokenList = useSelector(state => state.wallet.tokenList);
+    const curToken = useSelector(state => state.wallet.token);
     const [tokenSymb, setTokenSymb] = useState('');
     useEffect(() => {
         const res = tokenList.filter(it => it.token === curToken);
@@ -15,7 +15,6 @@ export default function useTokenSymb() {
         }
         setTokenSymb(res[0].symb);
     }, [tokenList, curToken]);
-
 
     return tokenSymb;
 }

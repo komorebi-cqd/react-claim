@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { metaMaskDownload, netWorks } from '../config';
+import { netWorks } from '../config';
 import claimABI from '../web3-config/ABI/claim.json';
 import tokenABI from '../web3-config/ABI/token.json';
 import { getExtractCash, getSign } from '../api/claim';
@@ -7,7 +7,7 @@ import { getExtractCash, getSign } from '../api/claim';
 import Web3 from 'web3';
 let web3 = new Web3(window.ethereum);
 
-export const changeChainId = createAsyncThunk('wallet/changeChainId', async (chainId, { dispatch, getState }) => {
+export const changeChainId = createAsyncThunk('wallet/changeChainId', async (chainId, { dispatch }) => {
     const config = await netWorks();
     const obj = config.find(it => parseInt(it.chainId) === parseInt(chainId));
     if (!obj) {
@@ -15,7 +15,7 @@ export const changeChainId = createAsyncThunk('wallet/changeChainId', async (cha
         return { tokenList: [], metaMaskNetWork: obj, errorNetWork: true, token: '', chainId }
     } else {
         localStorage.setItem('net', JSON.stringify(obj));
-        const tokenList = obj.tokens.map(async it => {
+        let tokenList = obj.tokens.map(async it => {
             const contract = new web3.eth.Contract(tokenABI, it)
             const symbol = await contract.methods.symbol().call();
             return {
@@ -25,14 +25,13 @@ export const changeChainId = createAsyncThunk('wallet/changeChainId', async (cha
         })
 
         await Promise.all(tokenList).then(values => {
-            dispatch(updataTokenList(values));
+            tokenList = values;
             localStorage.setItem('tokenList', JSON.stringify(values))
         })
 
-        const tokens = getState().wallet.tokenList;
-        const token = null;
-        if (tokens.length !== 0) {
-            token = tokens[0].token;
+        let token = null;
+        if (tokenList !== 0) {
+            token = tokenList[0].token;
         };
         dispatch(getClaimNumber());
         return { tokenList, metaMaskNetWork: obj, errorNetWork: false, token, chainId }
@@ -42,21 +41,24 @@ export const changeChainId = createAsyncThunk('wallet/changeChainId', async (cha
 export const getClaimNumber = createAsyncThunk('wallet/getClaimNumber', async (_, { dispatch, getState }) => {
     const config = await netWorks();
     const state = getState().wallet;
+    const { account } = getState().connect;
     const contractToken = config.find(e => (parseInt(e.chainId) === parseInt(state.chainId)));
     const contract = new web3.eth.Contract(claimABI, contractToken.claim);
-    const nonce = await contract.methods.nonceOf(state.account, state.token).call();
-    const extractCash = await getExtractCash({ token: state.token, address: state.account, chain_id: chainId, nonce: parseInt(nonce) + 1 });
+    const nonce = await contract.methods.nonceOf(account, state.token).call();
+    const extractCash = await getExtractCash({ token: state.token, address: account, chain_id: state.chainId, nonce: parseInt(nonce) + 1 });
+    
     dispatch(getTokenInfo(state.token));
     return { balance: extractCash.data, contract }
 })
-export const getTokenInfo = createAsyncThunk('wallet/getTokenInfo', async (_, { dispatch }) => {
-    const contract = new web3.eth.Contract(tokenABI, token)
+export const getTokenInfo = createAsyncThunk('wallet/getTokenInfo', async (token) => {
+    const contract = new web3.eth.Contract(tokenABI, token);
     const decimal = await contract.methods.decimals().call();
     const symbol = await contract.methods.symbol().call();
+    console.log(contract, decimal, symbol, 'wallet/getTokenInfo');
     return { decimal, symbol };
 })
 
-export const switchChainId = createAsyncThunk('wallet/switchChainId', async (chainObj, { dispatch, getState }) => {
+export const switchChainId = createAsyncThunk('wallet/switchChainId', async (chainObj) => {
     const ethereum = window.ethereum;
     const { chainId, rpcUrls, chainName } = chainObj;
     const newrpcUrls = rpcUrls.slice(0, rpcUrls.length);
@@ -82,15 +84,17 @@ export const switchChainId = createAsyncThunk('wallet/switchChainId', async (cha
     }
 })
 
-export const chaimToken = createAsyncThunk('wallet/chaimToken', async (_, { dispatch, getState }) => {
+export const claimToken = createAsyncThunk('wallet/claimToken', async (_, { dispatch, getState }) => {
     const state = getState().wallet;
+    const { account } = getState().connect;
     if (state.contract) {
         try {
-            const once = await state.contract.methods.nonceOf(state.account, state.token).call();
-            const { chainId } = JSON.parse(localStorage.getItem('net'));
-            const res = await getSign({ token: state.token, address: state.account, chain_id: chainId, nonce: parseInt(once) + 1 });
+            const once = await state.contract.methods.nonceOf(account, state.token).call();
+            const { chainId } = getState().wallet;
+            const res = await getSign({ token: state.token, address: account, chain_id: chainId, nonce: parseInt(once) + 1 });
             const receipt = state.contract.methods.claim(res.data.token, res.data.account, res.data.number, res.data.nonce, res.data.v, res.data.r, res.data.s)
-                .send({ from: state.account });
+                .send({ from: account });
+            console.log(receipt, 'receipt:::::');
             dispatch(getClaimNumber());
         } catch (error) {
             console.log(error, '错误');
@@ -106,7 +110,6 @@ export const chaimToken = createAsyncThunk('wallet/chaimToken', async (_, { disp
 const walletSlice = createSlice({
     name: 'wallet',
     initialState: {
-        account: localStorage.getItem('account') || '',
         errorNetWork: false,
         metaMaskNetWork: {},
         tokenList: [],
@@ -117,42 +120,15 @@ const walletSlice = createSlice({
         chainId: '',
     },
     reducers: {
-        // updataAccount(state, action) {
-        //     localStorage.setItem('account', action.payload);
-        //     state.account = action.payload
-        // },
-        // updataState(state, action) {
-        //     state[action.payload.key] = action.payload.data;
-        // },
-        // updataErrorNetWork(state, action) {
-        //     state.errorNetWork = action.payload
-        // },
-        // updataMetaMaskNetWork(state, action) {
-        //     state.metaMaskNetWork = action.payload
-        // },
-        // updataTokenList(state, action) {
-        //     state.tokenList = action.payload
-        // },
-        // updataToken(state, action) {
-        //     state.token = action.payload
-        // },
-        // updataTokenInfo(state, action) {
-        //     console.log(action.payload, 'updataTokenInfo');
-        //     state.tokenInfo = action.payload
-        // },
-        // updataBalance(state, action) {
-        //     state.balance = action.payload
-        // },
-        // updataContract(state, action) {
-        //     state.contract = action.payload
-        // },
+        updataToken(state, action) {
+            state.token = action.payload
+        },
     },
     extraReducers(builder) {
         builder.addCase(changeChainId.fulfilled, (state, { payload }) => {
             state.tokenList = payload.tokenList;
             state.errorNetWork = payload.errorNetWork;
             state.metaMaskNetWork = payload.metaMaskNetWork;
-            state.tokenList = payload.tokenList;
             state.token = payload.token;
             state.chainId = payload.chainId;
         });
@@ -169,13 +145,12 @@ const walletSlice = createSlice({
     }
 })
 
-// export const { updataAccount, updataState, updataContract, updataErrorNetWork, updataTokenInfo, updataMetaMaskNetWork, updataTokenList, updataToken, updataBalance } = accountSlice.actions;
 
-export const { } = walletSlice.actions;
+export const { updataToken } = walletSlice.actions;
 
-export const errorNetWork = state => state.account.errorNetWork;
-export const token = state => state.account.token;
+export const errorNetWork = state => state.wallet.errorNetWork;
+export const token = state => state.wallet.token;
 
-export default accountSlice.reducer;
+export default walletSlice.reducer;
 
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import './index.scss'
-import { connect } from '../../store/accountSlice'
+import { fetchConnect } from '../../store/connectSlice'
 import { useDispatch } from 'react-redux'
 import mastIcon from '../../assets/metaMask.png';
 import goIcon from '../../assets/go.png';
@@ -13,10 +13,10 @@ export default function Connect(props) {
     }
 
     const clickConnect = async () => {
-        await dispatch(connect());
+        await dispatch(fetchConnect());
         props.showConnect();
     }
-    if(props.account){
+    if (props.account) {
         return null;
     }
     return (

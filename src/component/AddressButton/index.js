@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getNetwork } from '../../api/claim';
-import { switchChainId, errorNetWork, getClaimNumber, updataToken } from '../../store/accountSlice'
+import { switchChainId, errorNetWork, getClaimNumber, updataToken } from '../../store/walletSlice'
 import useTokenSymb from '../../hooks/useTokenSymb';
 import './index.scss';
 
@@ -12,8 +12,8 @@ export default function AddressButton(props) {
 
     const dispatch = useDispatch();
 
-    const tokenList = useSelector(state => state.account.tokenList);
-    const maskNetWork = useSelector(state => state.account.metaMaskNetWork);
+    const tokenList = useSelector(state => state.wallet.tokenList);
+    const maskNetWork = useSelector(state => state.wallet.metaMaskNetWork);
     const error = useSelector(errorNetWork);
     const tokenSymb = useTokenSymb();
     useEffect(() => {
@@ -21,8 +21,6 @@ export default function AddressButton(props) {
             setNets(r.data);
         })
     }, []);
-
-
 
     const account = (props.account && props.account.slice(0, 5) + "***" + props.account.slice(-4)) || "";
 
