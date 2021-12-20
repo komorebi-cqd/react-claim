@@ -54,7 +54,6 @@ export const getTokenInfo = createAsyncThunk('wallet/getTokenInfo', async (token
     const contract = new web3.eth.Contract(tokenABI, token);
     const decimal = await contract.methods.decimals().call();
     const symbol = await contract.methods.symbol().call();
-    console.log(contract, decimal, symbol, 'wallet/getTokenInfo');
     return { decimal, symbol };
 })
 

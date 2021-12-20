@@ -6,11 +6,11 @@ import useTokenSymb from '../../hooks/useTokenSymb';
 import './index.scss';
 
 export default function AddressButton(props) {
+    const dispatch = useDispatch();
+
     const [showNet, setShowNet] = useState(false);
     const [showToken, setShowToken] = useState(false);
     const [nets, setNets] = useState([]);
-
-    const dispatch = useDispatch();
 
     const tokenList = useSelector(state => state.wallet.tokenList);
     const maskNetWork = useSelector(state => state.wallet.metaMaskNetWork);

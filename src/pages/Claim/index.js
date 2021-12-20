@@ -44,7 +44,7 @@ export default function Claim() {
 
     return (
         <div className='claim-container'>
-            <h3>Claim {errorNetWork? '' : tokenInfo.symbol} Token</h3>
+            <h3>Claim {errorNetWork ? '' : tokenInfo.symbol} Token</h3>
             <div className='nums'>{newBalance}</div>
             {account ? <button className='btn' disabled={disabled} onClick={submit}>
                 {errorNetWork ? 'You are on the wrong network' : chaiming ? 'Claim...' : `Claim ${tokenInfo.symbol}`}

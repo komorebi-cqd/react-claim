@@ -29,7 +29,7 @@ export const subsribeChain = createAsyncThunk('connect/subscribeChain', async (_
     ethereum.on('accountsChanged', (accounts) => {
         console.log('change account', accounts);
         if (!accounts[0]) {
-            console.log('accounts[0]是空');
+            console.log('accountsChanged::::accounts[0]是空');
             dispatch(updataAccount(''));
             return;
         }
