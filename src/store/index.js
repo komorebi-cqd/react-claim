@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import accountSlice from './accountSlice';
-// import accountSlice from './accountSlice';
+import connectSlice from './connectSlice';
 
 export default configureStore({
     middleware: (getDefaultMiddleware) =>
@@ -9,5 +9,6 @@ export default configureStore({
         }),
     reducer: {
         account: accountSlice,
+        connect: connectSlice,
     }
 })
