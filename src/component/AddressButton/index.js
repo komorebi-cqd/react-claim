@@ -15,7 +15,7 @@ export default function AddressButton(props) {
     const networkList = useSelector(state => state.wallet.networkList);
     const error = useSelector(errorNetWork);
     const tokenSymb = useTokenSymb();
-    
+
 
     const account = (props.account && props.account.slice(0, 5) + "***" + props.account.slice(-4)) || "";
 
@@ -25,7 +25,7 @@ export default function AddressButton(props) {
     return (
         <ul className='head-title'>
             <li className={['down', showNet ? 'select-down' : null].join(' ')} onClick={() => {
-                if(!showNet) setShowToken(false);
+                if (!showNet) setShowToken(false);
                 setShowNet(!showNet);
             }}>{error ? 'You are on the wrong network' : (maskNetWork.chainName || 'Select a network')}
                 <ul className='menu'>
@@ -34,7 +34,7 @@ export default function AddressButton(props) {
                 </ul>
             </li>
             <li className={['down', showToken ? 'select-down' : null].join(' ')} onClick={() => {
-                if(!showToken) setShowNet(false);
+                if (!showToken) setShowNet(false);
                 setShowToken(!showToken);
             }}>{error ? 'empty token' : (tokenSymb || 'Select a token')}
                 <ul className='menu'>

@@ -91,8 +91,8 @@ export const claimToken = createAsyncThunk('wallet/claimToken', async (_, { disp
             const res = await getSign({ token: state.token, address: account, chain_id: chainId, nonce: parseInt(once) + 1 });
             const receipt = state.contract.methods.claim(res.data.token, res.data.account, res.data.number, res.data.nonce, res.data.v, res.data.r, res.data.s)
                 .send({ from: account });
-            console.log(receipt, 'receipt:::::');
             dispatch(getClaimNumber());
+            return receipt;
         } catch (error) {
             console.log(error, '错误');
             return Promise.reject(error);
@@ -139,6 +139,9 @@ const walletSlice = createSlice({
         builder.addCase(getClaimNumber.fulfilled, (state, { payload }) => {
             state.contract = payload.contract;
             state.balance = payload.balance;
+        });
+        builder.addCase(getClaimNumber.rejected,(state,action) => {
+            state.balance = 0;
         });
         builder.addCase(getTokenInfo.fulfilled, (state, { payload }) => {
             state.tokenInfo = payload;

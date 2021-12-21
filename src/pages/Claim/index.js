@@ -17,8 +17,11 @@ export default function Claim() {
     const [chaiming, setChaiming] = useState(false);
     const submit = async () => {
         setChaiming(true);
-        await dispatch(claimToken());
-        setChaiming(false);
+        try {
+            await dispatch(claimToken());
+        } finally {
+            setChaiming(false);
+        }
     }
 
     useEffect(() => {
@@ -34,7 +37,7 @@ export default function Claim() {
     useEffect(() => {
         if (balance <= 0 || errorNetWork || chaiming) {
             setDisabled(true);
-        }else{
+        } else {
             setDisabled(false);
         }
     }, [balance, errorNetWork, chaiming]);

@@ -42,7 +42,7 @@ export const subsribeChain = createAsyncThunk('connect/subscribeChain', async (_
     })
     ethereum.on('chainChanged',async (event) => {
         console.log('chainChanged', event);
-        dispatch(updataBalance(0));
+        // dispatch(updataBalance(0));
         await dispatch(changeChainId(event));
         dispatch(getClaimNumber());
     })
@@ -50,7 +50,6 @@ export const subsribeChain = createAsyncThunk('connect/subscribeChain', async (_
         console.log('------disconnect', e);
         // 清空钱包连接类型
         localStorage.removeItem('account');
-        dispatch(updataBalance(0));
         // dispatch(updataBalance(0));
     })
 })
@@ -64,12 +63,14 @@ const connectSlice = createSlice({
     },
     reducers: {
         updataAccount(state, action) {
+            console.log(action.payload,'action.payload');
+            localStorage.setItem('account',action.payload || '');
             state.account = action.payload
         },
     },
     extraReducers(builder) {
         builder.addCase(fetchConnect.fulfilled, (state, { payload }) => {
-            localStorage.setItem('account', payload.accounts);
+            localStorage.setItem('account', payload.accounts || '');
             state.account = payload.accounts;
             state.chainId = payload.chainId;
         })
