@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getNetwork } from '../../api/claim';
 import { switchChainId, errorNetWork, getClaimNumber, updataToken } from '../../store/walletSlice'
 import useTokenSymb from '../../hooks/useTokenSymb';
 import './index.scss';
@@ -10,21 +9,17 @@ export default function AddressButton(props) {
 
     const [showNet, setShowNet] = useState(false);
     const [showToken, setShowToken] = useState(false);
-    const [nets, setNets] = useState([]);
 
     const tokenList = useSelector(state => state.wallet.tokenList);
     const maskNetWork = useSelector(state => state.wallet.metaMaskNetWork);
+    const networkList = useSelector(state => state.wallet.networkList);
     const error = useSelector(errorNetWork);
     const tokenSymb = useTokenSymb();
-    useEffect(() => {
-        getNetwork().then(r => {
-            setNets(r.data);
-        })
-    }, []);
+    
 
     const account = (props.account && props.account.slice(0, 5) + "***" + props.account.slice(-4)) || "";
 
-    const netsList = nets.map(it => (<li className='down-l' onClick={() => { dispatch(switchChainId(it)) }} key={it.chainName}>{it.chainName}</li>));
+    const netsList = networkList.map(it => (<li className='down-l' onClick={() => { dispatch(switchChainId(it)) }} key={it.chainName}>{it.chainName}</li>));
     const tokens = tokenList.map(it => (<li className='down-l' onClick={() => { dispatch(updataToken(it.token)); dispatch(getClaimNumber()) }} key={it.symb}>{it.symb}</li>));
 
     return (

@@ -4,8 +4,11 @@ import { Provider } from 'react-redux'
 import './index.css';
 import App from './App';
 import store from './store';
+import { subsribeChain } from './store/connectSlice';
 
 
+
+store.dispatch(subsribeChain());
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>

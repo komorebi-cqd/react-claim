@@ -1,16 +1,19 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
-import { useDispatch } from 'react-redux';
-import { subsribeChain } from './store/connectSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchConnect } from './store/connectSlice';
 import Layout from "./component/Layout";
 import Claim from './pages/Claim'
 
 
 function App() {
   const dispatch = useDispatch();
+  let account = useSelector(state => state.connect.account);
   useEffect(() => {
-    dispatch(subsribeChain());
-  }, [dispatch])
+    if (account) {
+      dispatch(fetchConnect());
+    }
+  }, [dispatch, account])
 
   return (
     <BrowserRouter>

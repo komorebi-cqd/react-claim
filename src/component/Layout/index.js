@@ -13,8 +13,7 @@ export default function Layout(props) {
     const [show, setShow] = useState(false)
     const showConnect = () => {
         setShow(!show);
-    }
-
+    };
 
     return (
         <div className="container">

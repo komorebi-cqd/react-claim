@@ -13,7 +13,7 @@ export default function Claim() {
     const tokenInfo = useSelector(state => state.wallet.tokenInfo);
     const balance = useSelector(state => state.wallet.balance);
     const [newBalance, setNewBalance] = useState();
-    const [disabled, setDisabled] = useState(true);
+    const [disabled, setDisabled] = useState(false);
     const [chaiming, setChaiming] = useState(false);
     const submit = async () => {
         setChaiming(true);
@@ -34,6 +34,8 @@ export default function Claim() {
     useEffect(() => {
         if (balance <= 0 || errorNetWork || chaiming) {
             setDisabled(true);
+        }else{
+            setDisabled(false);
         }
     }, [balance, errorNetWork, chaiming]);
 

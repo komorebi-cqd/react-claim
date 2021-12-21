@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { netWorks } from '../config';
 import claimABI from '../web3-config/ABI/claim.json';
 import tokenABI from '../web3-config/ABI/token.json';
 import { getExtractCash, getSign } from '../api/claim';
@@ -7,8 +6,9 @@ import { getExtractCash, getSign } from '../api/claim';
 import Web3 from 'web3';
 let web3 = new Web3(window.ethereum);
 
-export const changeChainId = createAsyncThunk('wallet/changeChainId', async (chainId, { dispatch }) => {
-    const config = await netWorks();
+export const changeChainId = createAsyncThunk('wallet/changeChainId', async (chainId, { dispatch,getState }) => {
+    console.log(chainId,'changeChainId::::');
+    const config = getState().wallet.networkList;
     const obj = config.find(it => parseInt(it.chainId) === parseInt(chainId));
     if (!obj) {
         console.log('no obj');
@@ -33,20 +33,18 @@ export const changeChainId = createAsyncThunk('wallet/changeChainId', async (cha
         if (tokenList !== 0) {
             token = tokenList[0].token;
         };
-        dispatch(getClaimNumber());
         return { tokenList, metaMaskNetWork: obj, errorNetWork: false, token, chainId }
     }
 });
 
 export const getClaimNumber = createAsyncThunk('wallet/getClaimNumber', async (_, { dispatch, getState }) => {
-    const config = await netWorks();
+    console.log('getClaimNumber:::::');
     const state = getState().wallet;
     const { account } = getState().connect;
-    const contractToken = config.find(e => (parseInt(e.chainId) === parseInt(state.chainId)));
+    const contractToken = state.networkList.find(e => (parseInt(e.chainId) === parseInt(state.chainId)));
     const contract = new web3.eth.Contract(claimABI, contractToken.claim);
     const nonce = await contract.methods.nonceOf(account, state.token).call();
     const extractCash = await getExtractCash({ token: state.token, address: account, chain_id: state.chainId, nonce: parseInt(nonce) + 1 });
-    
     dispatch(getTokenInfo(state.token));
     return { balance: extractCash.data, contract }
 })
@@ -117,10 +115,17 @@ const walletSlice = createSlice({
         balance: 0,
         contract: null,
         chainId: '',
+        networkList: [],
     },
     reducers: {
         updataToken(state, action) {
             state.token = action.payload
+        },
+        updataBalance(state, action) {
+            state.balance = action.payload
+        },
+        updataNetworkList(state, action) {
+            state.networkList = action.payload
         },
     },
     extraReducers(builder) {
@@ -145,7 +150,7 @@ const walletSlice = createSlice({
 })
 
 
-export const { updataToken } = walletSlice.actions;
+export const { updataToken,updataNetworkList,updataBalance } = walletSlice.actions;
 
 export const errorNetWork = state => state.wallet.errorNetWork;
 export const token = state => state.wallet.token;
